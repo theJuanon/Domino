@@ -14,15 +14,15 @@ public class Domino extends JFrame implements ActionListener {
  * 5. UN JUGADOR SÓLO PODRÁ PASAR SIN TIRAR FICHA SI NO TIENE FICHA VÁLIDA
  * 6. EL JUGADOR QUE GANA SERÁ AQUEL QUE HAYA TIRADO TODAS SUS FICHAS EN PRIMER LUGAR.
  * 7. SI NINGÚN JUGADOR PUEDE REALIZAR TIRO SE DICE QUE EL JUEGO SE CERRÓ Y EL GANADOR DEL JUEGO
- *    SERÁ AQUEL QUE TENGA MENOS FICHAS.
+ *    SERÁ AQUEL QUE TENGA MENOS PUNTOS.
  *
  */
 
 
 	JPanel centro;
-	JButton [] fichas;
+	Boton [] fichas, original;
 	JButton btnRevolver,btnRepartirJuego,btnOriginal;
-	String [] vi, original;
+	String [] vi;
 	Box jugadorNorte = Box.createHorizontalBox();
 	Box jugadorSur = Box.createHorizontalBox();
 	Box jugadorEste = Box.createVerticalBox();
@@ -42,18 +42,26 @@ public class Domino extends JFrame implements ActionListener {
 		centro = new JPanel();
 		centro.setLayout(new GridLayout(0,7));
 		
-		fichas = new JButton[28];
+		fichas = new Boton[28];
 		vi     = new String[28];
 
-		for(int i = 0; i < vi.length; i++) {
-			vi[i] = (i+1) + ".jpg";
-			fichas[i] = new JButton(Rutinas.AjustarImagen(vi[i], 60, 100));
-			fichas[i].setMinimumSize(new Dimension(40, 50));
-			fichas[i].setPreferredSize(new Dimension(40, 50));
-			fichas[i].setMaximumSize(new Dimension(40, 50));
-			centro.add(fichas[i]);
+		int aux = 0;
+
+		for(int i = 0; i < 7; i++) {
+		    for (int j = i; j < 7; j++){
+                vi[aux] = (aux+1) + ".jpg";
+                fichas[aux] = new Boton(vi[aux], i, j);
+                fichas[aux].setMinimumSize(new Dimension(40, 50));
+                fichas[aux].setPreferredSize(new Dimension(40, 50));
+                fichas[aux].setMaximumSize(new Dimension(40, 50));
+                centro.add(fichas[aux]);
+                aux++;
+            }
 		}
-		original = vi.clone();
+        System.out.println(aux);
+        for (int i = 0; i < fichas.length; i++)
+            System.out.println(fichas[i].getNum1() +" "+ fichas[i].getNum2());
+        original = fichas.clone();
 
 		btnOriginal = new JButton("Original");
 		centro.add(btnOriginal);
@@ -90,12 +98,19 @@ public class Domino extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent evt) {
 		if(evt.getSource() == btnOriginal) {
 			// Actualizar la imagen de los botones
-			for(int i = 0; i < vi.length; i++) {
-				fichas[i].setIcon(Rutinas.AjustarImagen(original[i], 60, 100));
+            centro.removeAll();
+			for(int i = 0; i < fichas.length; i++) {
+				//fichas[i].setIcon(Rutinas.AjustarImagen(original[i], 60, 100));
 				//fichas[i].update(fichas[i].getGraphics());
-			}		
-			
-			return;
+                centro.add(original[i]);
+			}
+           // centro.update(centro.getGraphics());
+            centro.add(btnOriginal);
+			centro.add(btnRevolver);
+			centro.add(btnRepartirJuego);
+            centro.revalidate();
+			centro.repaint();
+            return;
 		}
 		if(evt.getSource() == btnRevolver) {
 			for(int i = 0; i < 20; i++) {
@@ -105,43 +120,48 @@ public class Domino extends JFrame implements ActionListener {
 					i--;
 					continue;
 				}
-				String aux = vi[p1];
+				Boton aux = fichas[p1];
+				fichas[p1] = fichas[p2];
+				fichas[p2] = aux;
+				String auxI = vi[p1];
 				vi[p1] = vi[p2];
-				vi[p2] = aux;
+				vi[p2] = auxI;
 			}
 			// Actualizar la imagen de los botones
-			for(int i = 0; i < vi.length; i++) {
-				fichas[i].setIcon(Rutinas.AjustarImagen(vi[i],60,100));
-			}
-	//		centro.update(centro.getGraphics());
+			centro.removeAll();
+			for (int i = 0; i < fichas.length; i++)
+			    centro.add(fichas[i]);
+			centro.add(btnOriginal);
+			centro.add(btnRevolver);
+			centro.add(btnRepartirJuego);
+			centro.revalidate();
+			centro.repaint();
 			return;
 		}
 		if (evt.getSource() == btnRepartirJuego){
+		    centro.removeAll();
+		    for (int i = 0; i< fichas.length; i++)
+                System.out.println(fichas[i].getNum1() +" " + fichas[i].getNum2()+" "+vi[i]);
 		    for (int i = 0; i < 28; i++){
                 jugadorEste.add(fichas[i]);
-                fichas[i].setIcon(Rutinas.AjustarImagen(vi[i],40,50));
+                fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
                 fichas[i].setEnabled(false);
                 i++;
                 jugadorNorte.add(fichas[i]);
-                fichas[i].setIcon(Rutinas.AjustarImagen(vi[i],40,50));
+                fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
                 fichas[i].setEnabled(false);
                 i++;
                 jugadorOeste.add(fichas[i]);
-                fichas[i].setIcon(Rutinas.AjustarImagen(vi[i],40,50));
+                fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
                 fichas[i].setEnabled(false);
                 i++;
                 jugadorSur.add(fichas[i]);
-                fichas[i].setIcon(Rutinas.AjustarImagen(vi[i],40,50));
+                fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
                 fichas[i].setEnabled(false);
             }
 		    fichas[27].setEnabled(true);
-
-            /*centro.update(getGraphics());
-		    jugadorEste.update(getGraphics());
-		    jugadorSur.update(getGraphics());
-		    jugadorNorte.update(getGraphics());
-		    jugadorOeste.update(getGraphics());*/
-
+            this.revalidate();
+            this.repaint();
             return;
         }
 		if (evt.getSource() == fichas[27]){
