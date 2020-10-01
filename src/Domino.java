@@ -22,14 +22,16 @@ public class Domino extends JFrame implements ActionListener {
 	JPanel centro, botones;
 	Boton [] fichas, original, jugadas, norte, sur, este, oeste;
 	Boton aux;
-	JButton btnRevolver,btnRepartirJuego,btnOriginal, nPaso, sPaso, ePaso, oPaso;
+	JButton btnRevolver,btnRepartirJuego,btnOriginal, btnPaso;
 	String [] vi;
 	Box jugadorNorte = Box.createHorizontalBox();
 	Box jugadorSur = Box.createHorizontalBox();
 	Box jugadorEste = Box.createVerticalBox();
 	Box jugadorOeste = Box.createVerticalBox();
-	int sub = 0, turno;
-
+	int sub = 0, turno, skips = 0;
+	int [] pts = new int[4];
+	int [] mano = new int[4];
+            
 	public Domino() {
 		super("Juego de domino");
 		HazInterfaz();
@@ -60,7 +62,6 @@ public class Domino extends JFrame implements ActionListener {
                 aux++;
             }
 		}
-
         original = fichas.clone();
 
         botones = new JPanel();
@@ -72,10 +73,7 @@ public class Domino extends JFrame implements ActionListener {
 		btnRepartirJuego = new JButton("Repartir");
 		botones.add(btnRepartirJuego);
 
-		nPaso = new JButton("Paso");
-		sPaso = new JButton("Paso");
-		ePaso = new JButton("Paso");
-		oPaso = new JButton("Paso");
+		btnPaso = new JButton("Paso");
 		add(centro);
 		add(botones, BorderLayout.SOUTH);
 
@@ -87,10 +85,7 @@ public class Domino extends JFrame implements ActionListener {
 		btnRevolver.addActionListener(this);
 		btnOriginal.addActionListener(this);
 		btnRepartirJuego.addActionListener(this);
-		nPaso.addActionListener(this);
-		sPaso.addActionListener(this);
-		ePaso.addActionListener(this);
-		oPaso.addActionListener(this);
+		btnPaso.addActionListener(this);
 	}
 	
 	public static void main(String [] a) {
@@ -141,24 +136,28 @@ public class Domino extends JFrame implements ActionListener {
 			int v = 0;
 		    for (int i = 0; i < 28; i++){
 				jugadorNorte.add(fichas[i]);
+				pts[0] += fichas[i].getNum1() + fichas[i].getNum2();
 				fichas[i].setPlayer(1);
 				fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
 				fichas[i].setEnabled(false);
 				//norte[v] = fichas[i];
 				i++;
 				jugadorOeste.add(fichas[i]);
+                pts[1] += fichas[i].getNum1() + fichas[i].getNum2();
                 fichas[i].setPlayer(2);
 				fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
 				fichas[i].setEnabled(false);
 				//sur[v] = fichas[i];
 				i++;
 				jugadorSur.add(fichas[i]);
+                pts[2] += fichas[i].getNum1() + fichas[i].getNum2();
                 fichas[i].setPlayer(3);
                 fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
 				fichas[i].setEnabled(false);
 				//este[v] = fichas[i];
 				i++;
                 jugadorEste.add(fichas[i]);
+                pts[3] += fichas[i].getNum1() + fichas[i].getNum2();
                 fichas[i].setPlayer(4);
                 fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
 				fichas[i].setEnabled(false);
@@ -178,15 +177,17 @@ public class Domino extends JFrame implements ActionListener {
             for (int i = 0; i<fichas.length; i++)
                 fichas[i].addActionListener(this);
 
+            Arrays.fill(mano, 7);
+
             switch (turno){
                 case 1:
-                    jugadorNorte.add(nPaso); break;
+                    jugadorNorte.add(btnPaso); break;
                 case 2:
-                    jugadorOeste.add(nPaso); break;
+                    jugadorOeste.add(btnPaso); break;
                 case 3:
-                    jugadorSur.add(nPaso); break;
+                    jugadorSur.add(btnPaso); break;
                 case 4:
-                    jugadorEste.add(nPaso); break;
+                    jugadorEste.add(btnPaso); break;
             }
 
             this.revalidate();
@@ -230,22 +231,20 @@ public class Domino extends JFrame implements ActionListener {
 		//fichas[Sub].setEnabled(true);
 		//fichas[Sub].setDisabledIcon(Rutinas.AjustarImagen(vi[Sub],100,40));
 
-		if (evt.getSource() == nPaso){
+		if (evt.getSource() == btnPaso){
             pasar();
+            skips++;
+            if (skips == 4){
+                int menor = pts[0], j = 0;
+                for (int i = 0; i < pts.length; i++){
+                    if (pts[i] < menor){
+                        menor = pts[i];
+                        j = i;
+                    }
+                }
+                JOptionPane.showMessageDialog(null, "Ganó judagor "+(j+1), "Juego Terminado", JOptionPane.INFORMATION_MESSAGE);
+            }
 		}
-		if (evt.getSource() == sPaso){
-            pasar();
-		}
-		if (evt.getSource() == ePaso){
-            pasar();
-		}
-		if (evt.getSource() == oPaso){
-            pasar();
-		}
-
-
-
-
 
 		//Boton aux = (Boton)evt.getSource();
 		/*int pos = 0;
@@ -300,6 +299,7 @@ public class Domino extends JFrame implements ActionListener {
 	}
 
 	public void jugar(int pos){
+	    skips = 0;
 		centro.add(fichas[pos]);
 		fichas[pos].removeActionListener(this);
 		jugadas[sub] = fichas[pos];
@@ -309,36 +309,38 @@ public class Domino extends JFrame implements ActionListener {
 		for (int i = 0; i < sub-1; i++){
 			jugadas[i].setEnabled(true);
 		}
-		//if (turno == 4)
-		//    turno = 1;
-		//else
-		//    turno++;
 
 		switch (turno){
             case 1:
-                turno++; jugadorOeste.add(nPaso); break;
+                mano[0]--; pts[0] -= fichas[pos].getNum1() + fichas[pos].getNum2(); turno++; jugadorOeste.add(btnPaso); break;
             case 2:
-                turno++; jugadorSur.add(nPaso); break;
+                mano[1]--; pts[1] -= fichas[pos].getNum1() + fichas[pos].getNum2(); turno++; jugadorSur.add(btnPaso); break;
             case 3:
-                turno++; jugadorEste.add(nPaso); break;
+                mano[2]--; pts[2] -= fichas[pos].getNum1() + fichas[pos].getNum2(); turno++; jugadorEste.add(btnPaso); break;
             case 4:
-                turno = 1; jugadorNorte.add(nPaso); break;
+                mano[3]--; pts[3] -= fichas[pos].getNum1() + fichas[pos].getNum2(); turno = 1; jugadorNorte.add(btnPaso); break;
         }
 
-		this.revalidate();
+        this.revalidate();
 		this.repaint();
+
+        for (int i = 0; i<pts.length; i++){
+            if (mano[i] == 0){
+                JOptionPane.showMessageDialog(null, "Ganó judagor "+(i+1), "Juego Terminado", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
 	}
 
 	public void pasar(){
         switch (turno){
             case 1:
-                turno++; jugadorOeste.add(nPaso); break;
+                turno++; jugadorOeste.add(btnPaso); break;
             case 2:
-                turno++; jugadorSur.add(nPaso); break;
+                turno++; jugadorSur.add(btnPaso); break;
             case 3:
-                turno++; jugadorEste.add(nPaso); break;
+                turno++; jugadorEste.add(btnPaso); break;
             case 4:
-                turno = 1; jugadorNorte.add(nPaso); break;
+                turno = 1; jugadorNorte.add(btnPaso); break;
         }
 	    for (int i = 0; i < fichas.length; i++){
             if (fichas[i].getPlayer() != turno)
