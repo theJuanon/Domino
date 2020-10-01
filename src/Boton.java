@@ -2,12 +2,20 @@ import javax.swing.*;
 
 public class Boton extends JButton {
 
-    private int num1, num2;
+    private int num1, num2, player;
     private String ruta;
     public Boton(String ruta, int num1, int num2){
         super(Rutinas.AjustarImagen(ruta, 60, 100));
         this.num1 = num1;
         this.num2 = num2;
+    }
+
+    public int getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(int player) {
+        this.player = player;
     }
 
     public void redimensionar(int ancho, int alto){

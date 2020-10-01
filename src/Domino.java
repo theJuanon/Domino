@@ -28,7 +28,7 @@ public class Domino extends JFrame implements ActionListener {
 	Box jugadorSur = Box.createHorizontalBox();
 	Box jugadorEste = Box.createVerticalBox();
 	Box jugadorOeste = Box.createVerticalBox();
-	int sub = 0;
+	int sub = 0, turno;
 
 	public Domino() {
 		super("Juego de domino");
@@ -141,57 +141,81 @@ public class Domino extends JFrame implements ActionListener {
 			int v = 0;
 		    for (int i = 0; i < 28; i++){
 				jugadorNorte.add(fichas[i]);
+				fichas[i].setPlayer(1);
 				fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
 				fichas[i].setEnabled(false);
 				//norte[v] = fichas[i];
 				i++;
-				jugadorSur.add(fichas[i]);
+				jugadorOeste.add(fichas[i]);
+                fichas[i].setPlayer(2);
 				fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
 				fichas[i].setEnabled(false);
 				//sur[v] = fichas[i];
 				i++;
-				jugadorEste.add(fichas[i]);
+				jugadorSur.add(fichas[i]);
+                fichas[i].setPlayer(3);
                 fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
 				fichas[i].setEnabled(false);
 				//este[v] = fichas[i];
 				i++;
-                jugadorOeste.add(fichas[i]);
+                jugadorEste.add(fichas[i]);
+                fichas[i].setPlayer(4);
                 fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
 				fichas[i].setEnabled(false);
 				//oeste[v] = fichas[i];
 				v++;
 			}
 
-			for(int i=0 ; i<fichas.length ; i++) {
-				if (fichas[i].getNum1() == 6 && fichas[i].getNum2() == 6){
-					fichas[i].setEnabled(true);
-					aux = fichas[i];
-					break;
-				}
-			}
-			jugadorNorte.add(nPaso);
-			jugadorSur.add(sPaso);
-			jugadorEste.add(ePaso);
-			jugadorOeste.add(oPaso);
+            for(int i=0 ; i<fichas.length ; i++) {
+                if (fichas[i].getNum1() == 6 && fichas[i].getNum2() == 6){
+                    fichas[i].setEnabled(true);
+                    turno = fichas[i].getPlayer();
+                    aux = fichas[i];
+                    break;
+                }
+            }
+
             for (int i = 0; i<fichas.length; i++)
                 fichas[i].addActionListener(this);
+
+            switch (turno){
+                case 1:
+                    jugadorNorte.add(nPaso); break;
+                case 2:
+                    jugadorOeste.add(nPaso); break;
+                case 3:
+                    jugadorSur.add(nPaso); break;
+                case 4:
+                    jugadorEste.add(nPaso); break;
+            }
 
             this.revalidate();
             this.repaint();
             return;
         }
 
-		for(int i=0 ; i<fichas.length ; i++) {
-			fichas[i].setEnabled(false);
-			if (fichas[i].getNum1() == aux.getNum1() || fichas[i].getNum1() == aux.getNum2() || fichas[i].getNum2() == aux.getNum1() || fichas[i].getNum2() == aux.getNum2()) {
+		for(int i = 0 ; i<fichas.length ; i++) {
+            if(evt.getSource() == fichas[i]) {
+			    if (fichas[i].getNum1() == aux.getNum1() || fichas[i].getNum1() == aux.getNum2() || fichas[i].getNum2() == aux.getNum1() || fichas[i].getNum2() == aux.getNum2()) {
 				fichas[i].setEnabled(true);
-				if(evt.getSource()==fichas[i]) {
+				if(fichas[i].getPlayer() != turno)
+				    fichas[i].setEnabled(false);
 					jugar(i);
+                    for (int j = 0; j < fichas.length; j++){
+                        if ((fichas[j].getNum1() == aux.getNum1() || fichas[j].getNum1() == aux.getNum2() || fichas[j].getNum2() == aux.getNum1() || fichas[j].getNum2() == aux.getNum2()) && (fichas[j].getPlayer() == turno)) {
+                            fichas[j].setEnabled(true);
+                        }else
+                            fichas[j].setEnabled(false);
+                    }
+                    for (int j = 0; j < sub; j++){
+                        jugadas[j].setEnabled(true);
+                    }
 					this.revalidate();
 					this.repaint();
 				}
 			}
 		}
+
 
 		/*
 		for(int i=0 ; i<fichas.length ; i++) {
@@ -201,23 +225,27 @@ public class Domino extends JFrame implements ActionListener {
 		}
 
 		 */
-		this.revalidate();
-		this.repaint();
+		//this.revalidate();
+		//this.repaint();
 		//fichas[Sub].setEnabled(true);
 		//fichas[Sub].setDisabledIcon(Rutinas.AjustarImagen(vi[Sub],100,40));
 
 		if (evt.getSource() == nPaso){
-
+            pasar();
 		}
 		if (evt.getSource() == sPaso){
-
+            pasar();
 		}
 		if (evt.getSource() == ePaso){
-
+            pasar();
 		}
 		if (evt.getSource() == oPaso){
-
+            pasar();
 		}
+
+
+
+
 
 		//Boton aux = (Boton)evt.getSource();
 		/*int pos = 0;
@@ -277,12 +305,53 @@ public class Domino extends JFrame implements ActionListener {
 		jugadas[sub] = fichas[pos];
 		sub++;
 		aux = fichas[pos];
+
 		for (int i = 0; i < sub-1; i++){
 			jugadas[i].setEnabled(true);
 		}
-		this.update(this.getGraphics());
+		//if (turno == 4)
+		//    turno = 1;
+		//else
+		//    turno++;
+
+		switch (turno){
+            case 1:
+                turno++; jugadorOeste.add(nPaso); break;
+            case 2:
+                turno++; jugadorSur.add(nPaso); break;
+            case 3:
+                turno++; jugadorEste.add(nPaso); break;
+            case 4:
+                turno = 1; jugadorNorte.add(nPaso); break;
+        }
+
 		this.revalidate();
 		this.repaint();
 	}
+
+	public void pasar(){
+        switch (turno){
+            case 1:
+                turno++; jugadorOeste.add(nPaso); break;
+            case 2:
+                turno++; jugadorSur.add(nPaso); break;
+            case 3:
+                turno++; jugadorEste.add(nPaso); break;
+            case 4:
+                turno = 1; jugadorNorte.add(nPaso); break;
+        }
+	    for (int i = 0; i < fichas.length; i++){
+            if (fichas[i].getPlayer() != turno)
+                fichas[i].setEnabled(false);
+            else
+                if (fichas[i].getNum1() == aux.getNum1() || fichas[i].getNum1() == aux.getNum2() || fichas[i].getNum2() == aux.getNum1() || fichas[i].getNum2() == aux.getNum2())
+                    fichas[i].setEnabled(true);
+        }
+        for (int i = 0; i < sub; i++){
+            jugadas[i].setEnabled(true);
+        }
+        this.revalidate();
+        this.repaint();
+    }
 
 }
