@@ -1,3 +1,6 @@
+// Juan de Jesus Hernandez Angulo - 18170350
+// Topicos Avanzados de Programacion - 12:00 - 13:00
+
 import javax.swing.*;
 
 public class Boton extends JButton {

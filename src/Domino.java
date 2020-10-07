@@ -1,3 +1,6 @@
+// Juan de Jesus Hernandez Angulo - 18170350
+// Topicos Avanzados de Programacion - 12:00 - 13:00
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -135,31 +138,34 @@ public class Domino extends JFrame implements ActionListener {
 			jugadorSur.add(Box.createHorizontalStrut(200));
 			add(jugadorEste,BorderLayout.EAST);
 			add(jugadorOeste,BorderLayout.WEST);
-		    for (int i = 0; i < 28; i++){
-				jugadorNorte.add(fichas[i]);
-				pts[0] += fichas[i].getNum1() + fichas[i].getNum2();
-				fichas[i].setPlayer(1);
-				fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
-				fichas[i].setEnabled(false);
-				i++;
-				jugadorOeste.add(fichas[i]);
-                pts[1] += fichas[i].getNum1() + fichas[i].getNum2();
-                fichas[i].setPlayer(2);
-				fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
-				fichas[i].setEnabled(false);
-				i++;
-				jugadorSur.add(fichas[i]);
-                pts[2] += fichas[i].getNum1() + fichas[i].getNum2();
-                fichas[i].setPlayer(3);
-                fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
-				fichas[i].setEnabled(false);
-				i++;
-                jugadorEste.add(fichas[i]);
-                pts[3] += fichas[i].getNum1() + fichas[i].getNum2();
-                fichas[i].setPlayer(4);
-                fichas[i].setIcon(Rutinas.AjustarImagen(vi[i], 40, 50));
-				fichas[i].setEnabled(false);
+
+			int ficha = 0, player = 0;
+			while (ficha < 28){
+				pts[player] += fichas[ficha].getNum1() + fichas[ficha].getNum2();
+				fichas[ficha].setPlayer(player+1);
+				fichas[ficha].setIcon(Rutinas.AjustarImagen(vi[ficha],40,50));
+				fichas[ficha].setEnabled(false);
+				switch (player){
+					case 0:
+						jugadorNorte.add(fichas[ficha]);
+						player++;
+						break;
+					case 1:
+						jugadorOeste.add(fichas[ficha]);
+						player++;
+						break;
+					case 2:
+						jugadorSur.add(fichas[ficha]);
+						player++;
+						break;
+					case 3:
+						jugadorEste.add(fichas[ficha]);
+						player = 0;
+						break;
+				}
+				ficha++;
 			}
+
 			mesa = new Lista<>();
             for(int i=0 ; i<fichas.length ; i++) {
                 if (fichas[i].getNum1() == 6 && fichas[i].getNum2() == 6){
